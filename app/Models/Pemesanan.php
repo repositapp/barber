@@ -60,4 +60,19 @@ class Pemesanan extends Model
             ->orderBy('tanggal_pemesanan')
             ->orderBy('waktu_pemesanan');
     }
+
+    public function layanans()
+    {
+        return $this->belongsToMany(Layanan::class, 'pemesanan_layanan', 'pemesanan_id', 'layanan_id');
+    }
+
+    public function getTotalHargaAttribute()
+    {
+        return $this->layanans->sum('harga');
+    }
+
+    public function getDaftarLayananAttribute()
+    {
+        return $this->layanans->pluck('nama')->implode(', ');
+    }
 }

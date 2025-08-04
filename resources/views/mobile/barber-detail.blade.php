@@ -65,136 +65,132 @@
                                                 class="d-flex align-items-center justify-content-between p-3 border-bottom border-end">
                                                 <h5 class="fw-bold m-0">Layanan Barber</h5>
                                             </div>
+                                            {{-- <a href="#"
+                                                class="btn btn-danger rounded-pill text-link text-decoration-none btn-sm text-start"
+                                                data-bs-toggle="modal" data-bs-target="#layanan"><i
+                                                    class="bi bi-cart4 me-1"></i> Pilih
+                                                Layanan</a> --}}
+
                                             <!-- chips -->
-                                            <div class="row row-cols-xl-1 row-cols-lg-1 row-cols-md-1 row-cols-1 g-0">
-                                                @forelse ($layanans as $layanan)
-                                                    <div class="col shop-list-page border-bottom border-end">
-                                                        <div
-                                                            class="d-flex align-items-center bg-transparent border-0 rounded-0 h-100 osahan-card-list pe-3">
-                                                            <a href="product-detail.html">
-                                                                @if ($barber->gambar)
-                                                                    <img class="card-img-top"
-                                                                        src="{{ asset('storage/' . $barber->gambar) }}"
-                                                                        alt="Logo" width="40">
-                                                                @else
-                                                                    <img class="card-img-top"
-                                                                        src="{{ asset('storage/' . $aplikasi->logo) }}"
-                                                                        alt="Logo" width="40">
-                                                                @endif
-                                                            </a>
-                                                            <div class="card-body pt-0">
-                                                                <h6 class="card-title fw-bold">
-                                                                    {{ $layanan->nama }}
-                                                                </h6>
-                                                                <p class="text-muted small m-0">Durasi Layanan
-                                                                    ({{ $layanan->durasi }} menit)
-                                                                </p>
-                                                            </div>
+                                            <form action="{{ route('barber.booking') }}" method="POST">
+                                                @csrf
+                                                <div class="row row-cols-xl-1 row-cols-lg-1 row-cols-md-1 row-cols-1 g-0">
+                                                    @forelse ($layanans as $layanan)
+                                                        <div class="col shop-list-page border-bottom border-end p-3">
                                                             <div
-                                                                class="card-footer bg-transparent border-0 d-flex align-items-end justify-content-between pt-0 gap-3 text-end">
-                                                                <h6 class="fw-bold m-0">
-                                                                    Rp {{ number_format($layanan->harga, 0, ',', '.') }}
-                                                                </h6>
-                                                                <a href="#"
-                                                                    class="btn btn-danger rounded-pill text-link text-decoration-none btn-sm text-start"
-                                                                    data-bs-toggle="modal"
-                                                                    data-bs-target="#layanan{{ $layanan->id }}"><i
-                                                                        class="bi bi-cart4 me-1"></i> Pilih
-                                                                    Layanan</a>
+                                                                class="d-flex align-items-center bg-transparent border-0 rounded-0 h-100 osahan-card-list pe-3">
+                                                                <div class="form-check" style="margin-right: 10px;">
+                                                                    <input class="form-check-input" type="checkbox"
+                                                                        id="flexCheckPost" name="layanan_id[]"
+                                                                        value="{{ $layanan->id }}"
+                                                                        @if (is_array(old('layanan_id')) && in_array($layanan->id, old('layanan_id'))) checked @endif>
+                                                                </div>
+                                                                <div class="card-body pt-0">
+                                                                    <h6 class="card-title fw-bold">
+                                                                        {{ $layanan->nama }}
+                                                                    </h6>
+                                                                    <p class="text-muted small m-0">Durasi Layanan
+                                                                        ({{ $layanan->durasi }} menit)
+                                                                    </p>
+                                                                </div>
+                                                                <div
+                                                                    class="card-footer bg-transparent border-0 d-flex align-items-end justify-content-between pt-0 gap-3 text-end">
+                                                                    <h6 class="fw-bold m-0">
+                                                                        Rp {{ number_format($layanan->harga, 0, ',', '.') }}
+                                                                    </h6>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
+                                                    @empty
+                                                        <div class="alert alert-danger" role="alert">
+                                                            Data layanan belum tersedia.
+                                                        </div>
+                                                    @endforelse
+                                                </div>
 
-                                                    <div class="modal fade" id="layanan{{ $layanan->id }}"
-                                                        aria-hidden="true" tabindex="-1">
-                                                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                                                            <div class="modal-content border-0 rounded-4 overflow-hidden">
-                                                                <div class="modal-body p-0">
-                                                                    <div class="row g-0">
-                                                                        <div class="col-lg-6 p-4">
-                                                                            <button type="button"
-                                                                                class="btn-close float-end shadow-none"
-                                                                                data-bs-dismiss="modal"
-                                                                                aria-label="Close"></button>
-                                                                            <div class="mb-3 pe-5">
-                                                                                <h6 class="fw-bold mb-1">
-                                                                                    Layanan {{ $layanan->nama }} </h6>
-                                                                                <p class="text-muted small m-0">Selesaikan
-                                                                                    waktu pemesanan anda </p>
-                                                                            </div>
-                                                                            <form action="{{ route('barber.booking') }}"
-                                                                                method="POST">
-                                                                                @csrf
-                                                                                <input type="hidden" name="barber_id"
-                                                                                    value="{{ $barber->id }}">
-                                                                                <input type="hidden" name="layanan_id"
-                                                                                    value="{{ $layanan->id }}">
+                                                <div class="p-3">
+                                                    <a class="btn btn-danger btn-sm fw-bold py-3 px-4 w-100 rounded-4 shadow-sm"
+                                                        data-bs-toggle="modal" data-bs-target="#layanan">Pilih Layanan</a>
+                                                </div>
 
-                                                                                <div class="form-floating mb-3">
-                                                                                    <input type="text"
-                                                                                        class="form-control"
-                                                                                        placeholder="name"
-                                                                                        value="{{ Auth::user()->name }}"
-                                                                                        disabled>
-                                                                                    <label for="floatingInput">Nama
-                                                                                        Pelanggan</label>
-                                                                                </div>
-                                                                                <div class="form-floating mb-3">
-                                                                                    <input type="date"
-                                                                                        class="form-control datepicker @error('tanggal_pemesanan') is-invalid @enderror"
-                                                                                        id="tanggal_pemesanan"
-                                                                                        name="tanggal_pemesanan"
-                                                                                        placeholder="Pilih Tanggal"
-                                                                                        value="{{ old('tanggal_pemesanan') }}">
-                                                                                    <label for="tanggal_pemesanan">Tanggal
-                                                                                        Pemesanan</label>
-                                                                                    @error('tanggal_pemesanan')
-                                                                                        <div class="text-danger">
-                                                                                            {{ $message }}</div>
-                                                                                    @enderror
-                                                                                </div>
-                                                                                <div class="form-floating mb-3">
-                                                                                    <input type="time"
-                                                                                        class="form-control timepicker @error('waktu_pemesanan') is-invalid @enderror"
-                                                                                        id="waktu_pemesanan"
-                                                                                        name="waktu_pemesanan"
-                                                                                        value="{{ old('waktu_pemesanan') }}"
-                                                                                        placeholder="Pilih Waktu">
-                                                                                    <label for="waktu_pemesanan">Waktu
-                                                                                        Pemesanan</label>
-                                                                                    @error('waktu_pemesanan')
-                                                                                        <div class="text-danger">
-                                                                                            {{ $message }}</div>
-                                                                                    @enderror
-                                                                                </div>
-                                                                                <div class="form-floating mb-3">
-                                                                                    <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan" name="catatan">{{ old('catatan') }}
-                                                                                    </textarea>
-                                                                                    <label for="floatingInput">Catatan
-                                                                                        tambahan untuk barber</label>
-                                                                                    @error('catatan')
-                                                                                        <div class="text-danger">
-                                                                                            {{ $message }}</div>
-                                                                                    @enderror
-                                                                                </div>
-                                                                                <button type="submit"
-                                                                                    class="btn btn-danger fw-bold py-3 px-4 w-100 rounded-4 shadow">
-                                                                                    <i class="fa fa-paper-plane"></i> Kirim
-                                                                                    Pesanan
-                                                                                </button>
-                                                                            </form>
+                                                <div class="modal fade" id="layanan" aria-hidden="true" tabindex="-1">
+                                                    <div class="modal-dialog modal-dialog-centered modal-lg">
+                                                        <div class="modal-content border-0 rounded-4 overflow-hidden">
+                                                            <div class="modal-body p-0">
+                                                                <div class="row g-0">
+                                                                    <div class="col-lg-6 p-4">
+                                                                        <button type="button"
+                                                                            class="btn-close float-end shadow-none"
+                                                                            data-bs-dismiss="modal"
+                                                                            aria-label="Close"></button>
+                                                                        <div class="mb-3 pe-5">
+                                                                            <h6 class="fw-bold mb-1">
+                                                                                Layanan {{ $layanan->nama }} </h6>
+                                                                            <p class="text-muted small m-0">Selesaikan
+                                                                                waktu pemesanan anda </p>
                                                                         </div>
+
+                                                                        <input type="hidden" name="barber_id"
+                                                                            value="{{ $barber->id }}">
+
+                                                                        <div class="form-floating mb-3">
+                                                                            <input type="text" class="form-control"
+                                                                                placeholder="name"
+                                                                                value="{{ Auth::user()->name }}" disabled>
+                                                                            <label for="floatingInput">Nama
+                                                                                Pelanggan</label>
+                                                                        </div>
+                                                                        <div class="form-floating mb-3">
+                                                                            <input type="date"
+                                                                                class="form-control datepicker @error('tanggal_pemesanan') is-invalid @enderror"
+                                                                                id="tanggal_pemesanan"
+                                                                                name="tanggal_pemesanan"
+                                                                                placeholder="Pilih Tanggal"
+                                                                                value="{{ old('tanggal_pemesanan') }}">
+                                                                            <label for="tanggal_pemesanan">Tanggal
+                                                                                Pemesanan</label>
+                                                                            @error('tanggal_pemesanan')
+                                                                                <div class="text-danger">
+                                                                                    {{ $message }}</div>
+                                                                            @enderror
+                                                                        </div>
+                                                                        <div class="form-floating mb-3">
+                                                                            <input type="time"
+                                                                                class="form-control timepicker @error('waktu_pemesanan') is-invalid @enderror"
+                                                                                id="waktu_pemesanan"
+                                                                                name="waktu_pemesanan"
+                                                                                value="{{ old('waktu_pemesanan') }}"
+                                                                                placeholder="Pilih Waktu">
+                                                                            <label for="waktu_pemesanan">Waktu
+                                                                                Pemesanan</label>
+                                                                            @error('waktu_pemesanan')
+                                                                                <div class="text-danger">
+                                                                                    {{ $message }}</div>
+                                                                            @enderror
+                                                                        </div>
+                                                                        <div class="form-floating mb-3">
+                                                                            <textarea class="form-control @error('catatan') is-invalid @enderror" id="catatan" name="catatan">{{ old('catatan') }}
+                                                                                    </textarea>
+                                                                            <label for="floatingInput">Catatan
+                                                                                tambahan untuk barber</label>
+                                                                            @error('catatan')
+                                                                                <div class="text-danger">
+                                                                                    {{ $message }}</div>
+                                                                            @enderror
+                                                                        </div>
+                                                                        <button type="submit"
+                                                                            class="btn btn-danger fw-bold py-3 px-4 w-100 rounded-4 shadow">
+                                                                            <i class="fa fa-paper-plane"></i> Kirim
+                                                                            Pesanan
+                                                                        </button>
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @empty
-                                                    <div class="alert alert-danger" role="alert">
-                                                        Data layanan belum tersedia.
-                                                    </div>
-                                                @endforelse
-                                            </div>
+                                                </div>
+
+                                            </form>
                                         </div>
                                     </div>
                                 </div>

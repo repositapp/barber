@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('barber_id')->constrained('barbers')->onDelete('cascade');
-            $table->foreignId('layanan_id')->constrained('layanans')->onDelete('cascade');
+            // $table->foreignId('layanan_id')->constrained('layanans')->onDelete('cascade');
             $table->date('tanggal_pemesanan');
             $table->time('waktu_pemesanan');
             $table->enum('status', [

@@ -75,54 +75,59 @@
                 </div>
                 <div class="row row-cols-xl-1 row-cols-lg-1 row-cols-md-1 row-cols-1 g-3 osahan-my-orders">
                     <div class="col">
-                        <div data-bs-toggle="offcanvas" data-bs-target="#viewdetails" aria-controls="viewdetails"
-                            class="d-flex align-items-center justify-content-between bg-white border p-3 rounded-3">
-                            <div class="w-75">
-                                <div class="d-flex align-items-center gap-3 osahan-mb-1">
-                                    <i class="lni lni-shopping-basket text-success fs-4"></i>
-                                    <div>
-                                        @if ($pemesananAktif->status == 'menunggu')
-                                            <small
-                                                class="badge bg-warning-subtle text-warning rounded-pill fw-normal small-sm mb-2">Menunggu
-                                                Konfirmasi</small>
-                                        @elseif($pemesananAktif->status == 'dikonfirmasi')
-                                            <small
-                                                class="badge bg-success-subtle text-success rounded-pill fw-normal small-sm mb-2">Dikonfirmasi
-                                                - Menunggu Antrian</small>
-                                        @endif
-                                        <h6 class="fw-bold mb-1 d-flex align-items-center">
-                                            {{ $pemesananAktif->layanan->nama }} </h6>
-                                        <p class="text-muted text-truncate mb-0 small">
-                                            {{ \Carbon\Carbon::parse($antrianAktif->tanggal_antrian)->locale('id')->translatedFormat('l, d F Y') }}
-                                            {{ \Carbon\Carbon::parse($antrianAktif->waktu_antrian)->locale('id')->translatedFormat('H:i') }}
-                                        </p>
-                                        <p class="text-muted text-truncate mb-0 small">
-                                            <strong>Barber:</strong> {{ $pemesananAktif->barber->nama }}<br>
-                                            @php
-                                                $inputWaktu = \Carbon\Carbon::parse($antrianAktif->waktu_antrian);
-                                                $sekarang = \Carbon\Carbon::now();
-                                                $selisihMenit = $inputWaktu->diffInMinutes($sekarang);
-                                            @endphp
-                                            @if ($antrianAktif)
-                                                <strong>Estimasi Waktu:</strong>
-                                                @if ($selisihMenit < 0)
-                                                    Waktu telah lewat {{ abs($selisihMenit) }} menit
-                                                @else
-                                                    <strong>{{ $selisihMenit }}</strong> menit lagi
-                                                @endif
+                        <a href="{{ route('transaksi.detail', $pemesananAktif->transaksi->id) }}">
+                            <div data-bs-toggle="offcanvas" data-bs-target="#viewdetails" aria-controls="viewdetails"
+                                class="d-flex align-items-center justify-content-between bg-white border p-3 rounded-3">
+                                <div class="w-75">
+                                    <div class="d-flex align-items-center gap-3 osahan-mb-1">
+                                        <i class="lni lni-shopping-basket text-success fs-4"></i>
+                                        <div>
+                                            @if ($pemesananAktif->status == 'menunggu')
+                                                <small
+                                                    class="badge bg-warning-subtle text-warning rounded-pill fw-normal small-sm mb-2">Menunggu
+                                                    Konfirmasi</small>
+                                            @elseif($pemesananAktif->status == 'dikonfirmasi')
+                                                <small
+                                                    class="badge bg-success-subtle text-success rounded-pill fw-normal small-sm mb-2">Dikonfirmasi
+                                                    - Menunggu Antrian</small>
                                             @endif
-                                        </p>
+                                            <h6 class="fw-bold mb-1 d-flex align-items-center">
+                                                @foreach ($pemesananAktif->layanans as $layanan)
+                                                    {{ $layanan->nama }},
+                                                @endforeach
+                                            </h6>
+                                            <p class="text-muted text-truncate mb-0 small">
+                                                {{ \Carbon\Carbon::parse($antrianAktif->tanggal_antrian)->locale('id')->translatedFormat('l, d F Y') }}
+                                                {{ \Carbon\Carbon::parse($antrianAktif->waktu_antrian)->locale('id')->translatedFormat('H:i') }}
+                                            </p>
+                                            <p class="text-muted text-truncate mb-0 small">
+                                                <strong>Barber:</strong> {{ $pemesananAktif->barber->nama }}<br>
+                                                @php
+                                                    $inputWaktu = \Carbon\Carbon::parse($antrianAktif->waktu_antrian);
+                                                    $sekarang = \Carbon\Carbon::now();
+                                                    $selisihMenit = $inputWaktu->diffInMinutes($sekarang);
+                                                @endphp
+                                                @if ($antrianAktif)
+                                                    <strong>Estimasi Waktu:</strong>
+                                                    @if ($selisihMenit < 0)
+                                                        Waktu telah lewat {{ abs($selisihMenit) }} menit
+                                                    @else
+                                                        <strong>{{ $selisihMenit }}</strong> menit lagi
+                                                    @endif
+                                                @endif
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+                                @if ($antrianAktif)
+                                    <div class="ms-auto d-flex align-items-center gap-3 text-center small">
+                                        <a href="#" class="small" style="line-height: 0.4;">
+                                            <h1>{{ $antrianAktif->nomor_antrian }}</h1><br>Nomor Antrian
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
-                            @if ($antrianAktif)
-                                <div class="ms-auto d-flex align-items-center gap-3 text-center small">
-                                    <a href="#" class="small" style="line-height: 0.4;">
-                                        <h1>{{ $antrianAktif->nomor_antrian }}</h1><br>Nomor Antrian
-                                    </a>
-                                </div>
-                            @endif
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -160,7 +165,10 @@
                                                 class="badge bg-danger-subtle text-danger rounded-pill fw-normal small-sm mb-2">Dibatalkan</small>
                                         @endif
                                         <h6 class="fw-bold mb-1 d-flex align-items-center">
-                                            {{ $riwayat->layanan->nama }} </h6>
+                                            @foreach ($riwayat->layanans as $layanan)
+                                                {{ $layanan->nama }}
+                                            @endforeach
+                                        </h6>
                                         <p class="text-muted text-truncate mb-0 small">
                                             {{ \Carbon\Carbon::parse($riwayat->waktu_pemesanan)->locale('id')->translatedFormat('l, d F Y, H:i') }}
                                         </p>

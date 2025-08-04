@@ -29,13 +29,13 @@ class UserDashboardController extends Controller
             ->take(6)
             ->get();
 
-        $riwayatTerbaru = Pemesanan::with(['barber', 'layanan'])
+        $riwayatTerbaru = Pemesanan::with(['barber', 'layanans'])
             ->where('user_id', $user->id)
             ->latest()
             ->take(3)
             ->get();
 
-        $pemesananAktif = Pemesanan::with(['barber', 'layanan'])
+        $pemesananAktif = Pemesanan::with(['barber', 'layanans'])
             ->where('user_id', $user->id)
             ->whereIn('status', ['menunggu', 'dikonfirmasi'])
             ->latest()

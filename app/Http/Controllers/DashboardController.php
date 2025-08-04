@@ -84,7 +84,7 @@ class DashboardController extends Controller
                 ->sum('jumlah');
 
             // Pemesanan terbaru
-            $pemesananTerbaru = Pemesanan::with(['user', 'layanan'])
+            $pemesananTerbaru = Pemesanan::with(['user', 'layanans'])
                 ->where('barber_id', $barber->id)
                 ->orderBy('created_at', 'desc')
                 ->limit(5)

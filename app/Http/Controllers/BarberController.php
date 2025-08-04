@@ -161,33 +161,42 @@ class BarberController extends Controller
 
     public function booking(Request $request)
     {
+        // dd($request->layanan_id);
+
         $user = Auth::user();
 
         $validatedData = $request->validate([
             'barber_id' => 'required',
-            'layanan_id' => 'required',
+            'layanan_id' => 'required|array|min:1',
+            'layanan_id.*' => 'exists:layanans,id', // Validasi setiap item dalam array
             'tanggal_pemesanan' => 'required|date|after_or_equal:today', // Validasi tanggal
             'waktu_pemesanan' => 'required',
             'catatan' => 'nullable|string|max:255',
+        ], [
+            'layanan_id.required' => 'Silakan pilih minimal satu layanan.',
+            'layanan_id.*.exists' => 'Salah satu layanan yang dipilih tidak valid.',
         ]);
 
         // Validasi tambahan: pastikan layanan milik barber yang dipilih
-        $layanan = Layanan::where('id', $validatedData['layanan_id'])
+        $layananIds = $validatedData['layanan_id'];
+        $layananValid = Layanan::whereIn('id', $layananIds)
             ->where('barber_id', $validatedData['barber_id'])
             ->where('is_active', true)
-            ->first();
+            ->pluck('id')
+            ->toArray();
 
-        if (!$layanan) {
-            return redirect()->back()->withErrors(['layanan_id' => 'Layanan tidak valid untuk barber yang dipilih.'])->withInput();
+        if (count($layananValid) !== count($layananIds)) {
+            return redirect()->back()->withErrors(['layanan_id' => 'Salah satu layanan tidak valid untuk barber yang dipilih.'])->withInput();
         }
 
         // Validasi ketersediaan slot antrian
         $tanggalBooking = Carbon::parse($validatedData['tanggal_pemesanan'])->format('Y-m-d');
         $waktuBooking = $validatedData['waktu_pemesanan'];
+        $barberId = $validatedData['barber_id'];
 
         // Cek apakah barber buka pada hari itu
         $hariDalamMinggu = strtolower(Carbon::parse($tanggalBooking)->locale('id')->isoFormat('dddd')); // 'monday', 'tuesday', dll
-        $jadwalHariIni = Jadwal::where('barber_id', $validatedData['barber_id'])
+        $jadwalHariIni = Jadwal::where('barber_id', $barberId)
             ->where('hari_dalam_minggu', $hariDalamMinggu)
             ->where('hari_kerja', true)
             ->first();
@@ -202,10 +211,10 @@ class BarberController extends Controller
         }
 
         // Cek ketersediaan slot antrian (jumlah maksimum per jam)
-        $jumlahBookingSudahAda = Pemesanan::where('barber_id', $validatedData['barber_id'])
+        $jumlahBookingSudahAda = Pemesanan::where('barber_id', $barberId)
             ->where('tanggal_pemesanan', $tanggalBooking)
             ->where('waktu_pemesanan', $waktuBooking)
-            ->where('status', '!=', 'dibatalkan') // Jangan hitung yang dibatalkan
+            ->where('status', '!=', 'dibatalkan')
             ->count();
 
         if ($jumlahBookingSudahAda >= $jadwalHariIni->maksimum_pelanggan_per_jam) {
@@ -213,22 +222,28 @@ class BarberController extends Controller
         }
 
         // 1. Simpan data pemesanan
-        $validatedData['tanggal_pemesanan'] = Carbon::parse($request->tanggal_pemesanan)->format('Y-m-d');
-        $validatedData['user_id'] = $user->id;
-        $validatedData['status'] = 'menunggu'; // Status awal
-        $pemesanan = Pemesanan::create($validatedData);
+        $dataPemesanan = [
+            'user_id' => $user->id,
+            'barber_id' => $barberId,
+            'tanggal_pemesanan' => $tanggalBooking,
+            'waktu_pemesanan' => $waktuBooking,
+            'catatan' => $validatedData['catatan'] ?? null,
+            'status' => 'menunggu',
+        ];
+        $pemesanan = Pemesanan::create($dataPemesanan);
 
-        // 2. Buat antrian otomatis (opsional, bisa juga saat status berubah)
-        // Untuk sementara, kita buat saat booking dengan status 'menunggu'
-        // Nomor antrian bisa berdasarkan urutan pemesanan di hari itu
-        $nomorAntrian = Pemesanan::where('barber_id', $validatedData['barber_id'])
+        // 2. Sinkronkan layanan yang dipilih (attach)
+        $pemesanan->layanans()->attach($layananIds);
+
+        // 3. Buat antrian otomatis (opsional, bisa juga saat status berubah)
+        $nomorAntrian = Pemesanan::where('barber_id', $barberId)
             ->where('tanggal_pemesanan', $tanggalBooking)
             ->where('status', '!=', 'dibatalkan')
             ->count(); // Ini akan memberi nomor urut
 
         Antrian::create([
             'pemesanan_id' => $pemesanan->id,
-            'barber_id' => $validatedData['barber_id'],
+            'barber_id' => $barberId,
             'tanggal_antrian' => $tanggalBooking,
             'waktu_antrian' => $waktuBooking,
             'nomor_antrian' => $nomorAntrian,
@@ -239,7 +254,7 @@ class BarberController extends Controller
         Transaksi::create([
             'pemesanan_id' => $pemesanan->id,
             'user_id' => $user->id,
-            'jumlah' => $layanan->harga,
+            'jumlah' => $pemesanan->total_harga,
             'status_pembayaran' => 'menunggu',
         ]);
 

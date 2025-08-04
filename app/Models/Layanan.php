@@ -26,4 +26,9 @@ class Layanan extends Model
     {
         return $this->hasMany(Pemesanan::class);
     }
+
+    public function pemesanans()
+    {
+        return $this->belongsToMany(Pemesanan::class, 'pemesanan_layanan', 'layanan_id', 'pemesanan_id');
+    }
 }

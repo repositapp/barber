@@ -53,7 +53,13 @@
                                         <div class="card-body pt-0">
                                             <p class="text-muted small m-0">Layanan</p>
                                             <h6 class="card-title fw-bold">
-                                                {{ $transaksi->pemesanan->layanan->nama ?? '-' }}
+                                                <ol style="padding-left: 1rem;margin-bottom: 0rem;">
+                                                    @foreach ($transaksi->pemesanan->layanans as $layanan)
+                                                        <li style="padding: 0px 10px 5px 10px;">
+                                                            {{ $layanan->nama ?? '-' }}
+                                                        </li>
+                                                    @endforeach
+                                                </ol>
                                             </h6>
                                         </div>
                                     </div>

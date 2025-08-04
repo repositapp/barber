@@ -168,7 +168,11 @@
                                             <tr>
                                                 <td class="text-center">{{ $loop->iteration }}</td>
                                                 <td>{{ $pemesanan->user->name }}</td>
-                                                <td>{{ $pemesanan->layanan->nama }}</td>
+                                                <td>
+                                                    @foreach ($pemesanan->layanans as $layanan)
+                                                        <span class="label label-primary">{{ $layanan->nama }}</span>
+                                                    @endforeach
+                                                </td>
                                                 <td>{{ \Carbon\Carbon::parse($pemesanan->waktu_pemesanan)->translatedFormat('d F Y, H:i') }}
                                                 </td>
                                                 <td>

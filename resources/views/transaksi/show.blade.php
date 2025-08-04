@@ -143,7 +143,11 @@
                             <tr>
                                 <td><strong>Layanan</strong></td>
                                 <td>:</td>
-                                <td>{{ $transaksi->pemesanan->layanan->nama ?? '-' }}</td>
+                                <td>
+                                    @foreach ($transaksi->pemesanan->layanans as $layanan)
+                                        <span class="label label-primary">{{ $layanan->nama ?? '-' }}</span>
+                                    @endforeach
+                                </td>
                             </tr>
                             <tr>
                                 <td><strong>Tanggal & Waktu</strong></td>

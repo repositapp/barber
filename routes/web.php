@@ -98,11 +98,14 @@ Route::prefix('mobile')->middleware(['auth:user', 'role:pelanggan'])->group(func
     Route::post('/user/logout', [UserAuthController::class, 'logout'])->name('user.logout');
     // Dashboard
     Route::get('dashboard', [UserDashboardController::class, 'index'])->name('dashboard');
+    // Barber
     Route::get('barber', [BarberController::class, 'show'])->name('barber');
     Route::get('barber/detail/{id}', [BarberController::class, 'detail'])->name('barber.detail');
-    Route::post('barber/detail/booking', [BarberController::class, 'booking'])->name('barber.booking');
+    Route::post('barber/detail', [BarberController::class, 'booking'])->name('barber.booking');
+    // Transaksi
     Route::get('transaksi', [TransaksiController::class, 'indexTransaksi'])->name('transaksi');
     Route::get('/transaksi/detail/{id}', [TransaksiController::class, 'detail'])->name('transaksi.detail');
+    // Profil
     Route::get('profil', [UserController::class, 'profil'])->name('profil');
     Route::put('/profil/{id}', [UserController::class, 'updateProfil'])->name('profil.update');
 });

@@ -58,7 +58,7 @@ class TransaksiController extends Controller
         // Eager load relasi yang dibutuhkan
         $transaksi = Transaksi::with([
             'user',
-            'pemesanan.layanan',
+            'pemesanan.layanans',
             'pemesanan.barber',
             'pemesanan.user' // Pelanggan yang memesan
         ])->findOrFail($id);
@@ -138,12 +138,12 @@ class TransaksiController extends Controller
     {
         $user = Auth::user();
 
-        $riwayatTerbaru = Pemesanan::with(['barber', 'layanan'])
+        $riwayatTerbaru = Pemesanan::with(['barber', 'layanans'])
             ->where('user_id', $user->id)
             ->latest()
             ->get();
 
-        $pemesananAktif = Pemesanan::with(['barber', 'layanan'])
+        $pemesananAktif = Pemesanan::with(['barber', 'layanans'])
             ->where('user_id', $user->id)
             ->whereIn('status', ['menunggu', 'dikonfirmasi'])
             ->latest()
@@ -171,7 +171,7 @@ class TransaksiController extends Controller
         // Eager load relasi yang dibutuhkan
         $transaksi = Transaksi::with([
             'user',
-            'pemesanan.layanan',
+            'pemesanan.layanans',
             'pemesanan.barber',
             'pemesanan.user'
         ])->findOrFail($id);

@@ -20,7 +20,7 @@ class PemesananController extends Controller
             return redirect()->back()->with(['error' => 'Anda tidak memiliki akses ke barber.']);
         }
 
-        $pemesanans = Pemesanan::with(['user', 'layanan'])
+        $pemesanans = Pemesanan::with(['user', 'layanans'])
             ->where('barber_id', $barberId)
             ->latest();
 
@@ -54,7 +54,7 @@ class PemesananController extends Controller
     public function show(string $id)
     {
         $barberId = Auth::user()->barber->id ?? null;
-        $pemesanan = Pemesanan::with(['user', 'layanan', 'barber', 'transaksi'])->findOrFail($id);
+        $pemesanan = Pemesanan::with(['user', 'layanans', 'barber', 'transaksi'])->findOrFail($id);
 
         // Pastikan pemesanan milik barber yang bersangkutan
         if ($pemesanan->barber_id != $barberId) {

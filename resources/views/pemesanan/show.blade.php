@@ -85,35 +85,34 @@
                                 <span class="label label-danger">Dibatalkan</span>
                             @endif
                         </td>
-                        <td style="width: 200px;"><strong>Nama Layanan</strong></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Layanan</strong></td>
                         <td style="width: 10px;">:</td>
-                        <td>{{ $pemesanan->layanan->nama ?? '-' }}</td>
+                        <td>
+                            @foreach ($pemesanan->layanans as $layanan)
+                                <span class="label label-primary">{{ $layanan->nama ?? '-' }}</span>
+                            @endforeach
+                        </td>
                     </tr>
                     <tr>
                         <td><strong>Tanggal Pemesanan</strong></td>
                         <td>:</td>
-                        <td>{{ \Carbon\Carbon::parse($pemesanan->tanggal_pemesanan)->locale('id')->translatedFormat('l, d F Y') }}
+                        <td colspan="4">
+                            {{ \Carbon\Carbon::parse($pemesanan->tanggal_pemesanan)->locale('id')->translatedFormat('l, d F Y') }}
                         </td>
-                        <td><strong>Deskripsi</strong></td>
-                        <td>:</td>
-                        <td>{{ $pemesanan->layanan->deskripsi ?? '-' }}</td>
                     </tr>
                     <tr>
                         <td><strong>Waktu Pemesanan</strong></td>
                         <td>:</td>
-                        <td>{{ \Carbon\Carbon::parse($pemesanan->waktu_pemesanan)->locale('id')->translatedFormat('H:i') }}
+                        <td colspan="4">
+                            {{ \Carbon\Carbon::parse($pemesanan->waktu_pemesanan)->locale('id')->translatedFormat('H:i') }}
                         </td>
-                        <td><strong>Durasi</strong></td>
-                        <td>:</td>
-                        <td>{{ $pemesanan->layanan->durasi ?? 0 }} menit</td>
                     </tr>
                     <tr>
                         <td><strong>Catatan Pelanggan</strong></td>
                         <td>:</td>
-                        <td>{{ $pemesanan->catatan ?? '-' }}</td>
-                        <td><strong>Harga</strong></td>
-                        <td>:</td>
-                        <td>Rp {{ number_format($pemesanan->layanan->harga ?? 0, 0, ',', '.') }}</td>
+                        <td colspan="4">{{ $pemesanan->catatan ?? '-' }}</td>
                     </tr>
                 </table>
             </div>
