@@ -105,7 +105,7 @@ class AuthController extends Controller
         ]);
 
         // Kirim email notifikasi ke admin
-        Mail::to('olshoppenjualan@gmail.com')->send(new RegistrationNotification($barber));
+        Mail::to('nelaastria6@gmail.com')->send(new RegistrationNotification($barber));
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silahkan login.');
     }
