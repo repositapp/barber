@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\StatusChangeNotification;
 use App\Models\Antrian;
 use App\Models\Barber;
 use App\Models\Jadwal;
@@ -16,6 +17,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class BarberController extends Controller
 {
@@ -119,25 +121,82 @@ class BarberController extends Controller
         return redirect()->route('barber.index')->with('success', 'Barber berhasil dihapus!');
     }
 
+    // public function toggleStatus(string $id)
+    // {
+    //     $barber = Barber::findOrFail($id);
+    //     $barber->is_active = !$barber->is_active;
+    //     $barber->save();
+
+    //     $statusText = $barber->is_active ? 'diaktifkan' : 'dinonaktifkan';
+    //     return redirect()->back()->with(['success' => "Barber berhasil {$statusText}!"]);
+    // }
+
     public function toggleStatus(string $id)
     {
         $barber = Barber::findOrFail($id);
+
+        // Simpan status lama untuk perbandingan
+        $oldIsActive = $barber->is_active;
+
         $barber->is_active = !$barber->is_active;
         $barber->save();
 
         $statusText = $barber->is_active ? 'diaktifkan' : 'dinonaktifkan';
-        return redirect()->back()->with(['success' => "Barber berhasil {$statusText}!"]);
+        $message = "Barber berhasil {$statusText}!";
+
+        // Kirim email notifikasi hanya jika status berubah menjadi AKTIF (true)
+        if ($barber->is_active && !$oldIsActive) {
+            // Pastikan relasi pengguna dimuat atau akses langsung ke email
+            // Misalnya, jika barber memiliki relasi 'pengguna' dengan kolom 'email'
+            // Atau jika kolom email ada langsung di tabel barber
+            $ownerEmail = $barber->user->email ?? $barber->email; // Sesuaikan dengan struktur Anda
+
+            if ($ownerEmail) {
+                Mail::to($ownerEmail)->send(new StatusChangeNotification($barber, 'is_active', true));
+                $message .= " Email notifikasi telah dikirim ke {$ownerEmail}."; // Opsional: tambahkan info ke pesan
+            }
+        }
+
+        return redirect()->back()->with(['success' => $message]);
     }
+
+    // Toggle Status Verifikasi
+    // public function toggleVerification(string $id)
+    // {
+    //     $barber = Barber::findOrFail($id);
+    //     $barber->is_verified = !$barber->is_verified;
+    //     $barber->save();
+
+    //     $statusText = $barber->is_verified ? 'diverifikasi' : 'batal diverifikasi';
+    //     return redirect()->back()->with(['success' => "Barber berhasil {$statusText}!"]);
+    // }
 
     // Toggle Status Verifikasi
     public function toggleVerification(string $id)
     {
         $barber = Barber::findOrFail($id);
+
+        // Simpan status lama untuk perbandingan
+        $oldIsVerified = $barber->is_verified;
+
         $barber->is_verified = !$barber->is_verified;
         $barber->save();
 
         $statusText = $barber->is_verified ? 'diverifikasi' : 'batal diverifikasi';
-        return redirect()->back()->with(['success' => "Barber berhasil {$statusText}!"]);
+        $message = "Barber berhasil {$statusText}!";
+
+        // Kirim email notifikasi hanya jika status berubah menjadi TERVERIFIKASI (true)
+        if ($barber->is_verified && !$oldIsVerified) {
+            // Pastikan relasi pengguna dimuat atau akses langsung ke email
+            $ownerEmail = $barber->user->email ?? $barber->email; // Sesuaikan dengan struktur Anda
+
+            if ($ownerEmail) {
+                Mail::to($ownerEmail)->send(new StatusChangeNotification($barber, 'is_verified', true));
+                $message .= " Email notifikasi telah dikirim ke {$ownerEmail}."; // Opsional: tambahkan info ke pesan
+            }
+        }
+
+        return redirect()->back()->with(['success' => $message]);
     }
 
     public function show()

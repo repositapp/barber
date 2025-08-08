@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Mail\RegistrationNotification;
 use App\Models\Barber;
 use App\Models\Pelanggan;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -87,7 +89,7 @@ class AuthController extends Controller
             $validatedGambar = 'barbers-images/' . $fileName;
         }
 
-        Barber::create([
+        $barber = Barber::create([
             'user_id' => $user->id,
             'nama' => $validatedData['nama'],
             'nama_pemilik' => $validatedData['name'],
@@ -101,6 +103,9 @@ class AuthController extends Controller
             'is_active' => false,
             'is_verified' => false,
         ]);
+
+        // Kirim email notifikasi ke admin
+        Mail::to('olshoppenjualan@gmail.com')->send(new RegistrationNotification($barber));
 
         return redirect()->route('login')->with('success', 'Registrasi berhasil! Silahkan login.');
     }
